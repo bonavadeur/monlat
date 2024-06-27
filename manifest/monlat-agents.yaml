@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: monlat-agent
-        image: chung123abc/ping:v9
+        image: chung123abc/monlat-agent:v1
         imagePullPolicy: Always
         env:
         - name: TIME
