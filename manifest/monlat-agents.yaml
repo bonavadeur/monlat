@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: delay
+data:
+  TIME: "5"
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: monlat-agent
+  labels:
+    app: monlat-agent
+spec:
+  selector:
+    matchLabels:
+      name: monlat-agent
+  template:
+    metadata:
+      labels:
+        name: monlat-agent
+    spec:
+      containers:
+      - name: monlat-agent
+        image: chung123abc/monlat-agent:v1
+        imagePullPolicy: Always
+        env:
+        - name: TIME
+          valueFrom:
+            configMapKeyRef:
+              name: delay
+              key: TIME
+

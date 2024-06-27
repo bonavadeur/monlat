@@ -9,39 +9,27 @@ This is a monitoring system give us the ability of monitoring latency between Ku
 
 ## 2. Installation
 
-### 2.1. Label Nodes
-
-Kubernetes Nodes need to be labeled
-
-```bash
-chmod +x label.sh
-./label.sh add # add labels
-./label.sh delete # delete labels
-```
-
-### 2.2. Render agents' manifest
-
-Agents are deployed in each nodes by 3 Pod manifest (instead of DaemonSet, I think the reason is our colaborator is so lazy). Pod's manifests are rendered automatically. Let's take a quick look in file [render.sh](render.sh)
+### 2.1. Build Image Monlat-Agent
+Rebuild image of `monlat-agent` component if you need. Let's take a quick view in [agent/build.sh](agent/build.sh). Then, rebuild image if you need.
 
 ```bash
+cd agent
+vi build.sh
 ...
 #####CONFIG HERE#####
-N_NODES=3 # number of node in Kubernetes Cluster, once again, our colaborator is so lazy
-SLEEP=2 # agents will sent ICMP packet to each other every 2 seconds
+HUB="chung123abc" # docker.io/$HUB/$NAME:$TAG
+TAG="v1"
+NAME="monlat-agent"
 #####################
 ...
+
+chmod +x build.sh
+./build.sh image # build from Golang code to Docker image
+./build.sh push # push Docker image to Docker Hub
+cd ..
 ```
 
-After configuring two above constant, let's render Pods' manifests
-
-```bash
-chmod +x render.sh
-./render.sh
-```
-
-A new file named [manifest/monlat-agents.yaml](manifest/monlat-agents.yaml) has been created!
-
-### 2.3. Build Image
+### 2.2. Build Image Monlat
 
 Rebuild image of `monlat` component if you need. Let's take a quick view in [src/build.sh](src/build.sh). Then, rebuild image if you need.
 
@@ -62,11 +50,11 @@ chmod +x build.sh
 cd ..
 ```
 
-### 2.4. Some other small changes
+### 2.3. Some other small changes
 
 Specify image you use to run `monlat` and specified Nodes you want to deploy it in `Deployment` in file [manifest/monlat.yaml](manifest/monlat.yaml)
 
-### 2.5. Install!
+### 2.4. Install!
 
 ```bash
 kubectl apply -f manifest/rbac.yaml
