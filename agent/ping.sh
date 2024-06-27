@@ -6,7 +6,7 @@ while true; do
     for index in "${!nodes[@]}"; do
         if [ "${nodes_name[index]}" != "$current_node_name" ]; then
             latency=$(ping -c 1 ${nodes[index]} | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}')
-            echo "delay{from=$current_node_name,to=${nodes_name[index]}}" $latency
+            echo "delay{from=\"$current_node_name\",to=\"${nodes_name[index]}\"}" $latency
         fi
     done
     sleep $TIME

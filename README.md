@@ -9,12 +9,24 @@ This is a monitoring system give us the ability of monitoring latency between Ku
 
 ## 2. Installation
 
-### 2.1. Build Image Agent
+### 2.1. Build Image Monlat-Agent
+Rebuild image of `monlat-agent` component if you need. Let's take a quick view in [agent/build.sh](agent/build.sh). Then, rebuild image if you need.
 
 ```bash
 cd agent
-docker build -t chung123abc/agent:v1 .
-docker push chung123abc/agent:v1
+vi build.sh
+...
+#####CONFIG HERE#####
+HUB="chung123abc" # docker.io/$HUB/$NAME:$TAG
+TAG="v1"
+NAME="monlat-agent"
+#####################
+...
+
+chmod +x build.sh
+./build.sh image # build from Golang code to Docker image
+./build.sh push # push Docker image to Docker Hub
+cd ..
 ```
 
 ### 2.2. Build Image Monlat
@@ -26,7 +38,7 @@ cd src
 vi build.sh
 ...
 #####CONFIG HERE#####
-HUB="chung123abc" # docker.io/$HUB/$NAME:$TAG
+HUB="bonavadeur" # docker.io/$HUB/$NAME:$TAG
 TAG="latest"
 NAME="monlat"
 #####################

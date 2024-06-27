@@ -9,6 +9,6 @@ RUN wget -O /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/r
 
 ENV TIME 5
 
-COPY . .
+COPY ping.sh .
 
 CMD ["bash", "/ping.sh"]

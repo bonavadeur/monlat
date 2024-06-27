@@ -2,8 +2,8 @@
 
 #####CONFIG HERE#####
 HUB="chung123abc" # docker.io/$HUB/$NAME:$TAG
-TAG="latest"
-NAME="monlat-collect"
+TAG="v1"
+NAME="monlat-agent"
 #####################
 
 GREEN="\e[32m"
