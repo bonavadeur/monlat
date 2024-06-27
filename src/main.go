@@ -33,7 +33,7 @@ func main() {
 	podLog := make([]*rest.Request, len(nodes.Items))
 	log := make([]string, len(nodes.Items))
 	line := int64(len(nodes.Items) - 1)
-	pingRegex := regexp.MustCompile(`ping-`)
+	pingRegex := regexp.MustCompile(`monlat-agent-`)
 	for _, pod := range pods.Items {
 		if pingRegex.MatchString(pod.Name) {
 			podName = append(podName, pod.Name)
