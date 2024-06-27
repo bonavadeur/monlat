@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"strconv"
+	"regexp"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -18,29 +18,33 @@ import (
 )
 
 func main() {
+	var podName []string
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err.Error())
 	}
+	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	e := echo.New()
-
 	nodes, _ := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	pods, _ := clientset.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{})
 	podLog := make([]*rest.Request, len(nodes.Items))
 	log := make([]string, len(nodes.Items))
-	podName := make([]string, len(nodes.Items))
-	line := int64(len(nodes.Items)-1)
+	line := int64(len(nodes.Items) - 1)
+	pingRegex := regexp.MustCompile(`ping-`)
+	for _, pod := range pods.Items {
+		if pingRegex.MatchString(pod.Name) {
+			podName = append(podName, pod.Name)
+		}
+	}
 	for i := 1; i <= len(nodes.Items); i++ {
-		podName[i-1] = "monlat-agent-" + strconv.Itoa(i)
 		podLog[i-1] = clientset.CoreV1().Pods("default").GetLogs(podName[i-1], &corev1.PodLogOptions{
 			TailLines: &line,
 		})
 	}
-
+	e := echo.New()
 	e.GET("/metrics", func(c echo.Context) error {
 		for i := 0; i < len(nodes.Items); i++ {
 			podLogs, err := podLog[i].Stream(context.TODO())
@@ -48,7 +52,6 @@ func main() {
 				panic(err.Error())
 			}
 			defer podLogs.Close()
-
 			buf := new(bytes.Buffer)
 			_, err = io.Copy(buf, podLogs)
 			if err != nil {
@@ -58,14 +61,8 @@ func main() {
 			lines := strings.Split(str, "\n")
 			log[i] = strings.Join(lines, "\n")
 		}
-
 		laslog := strings.Join(log, "")
 		return c.String(http.StatusOK, laslog)
 	})
-
-	e.GET("/healthz", func(c echo.Context) error {
-		return c.String(http.StatusOK, "OK")
-	})
-
 	e.Logger.Fatal(e.Start(":9090"))
 }
